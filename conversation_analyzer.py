@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Conversation Analysis Script for Marriage/Organizations Firm
-Analyzes customer chat conversations using OpenAI GPT-4.1 with structured outputs.
+Important: Once you fine tune your model, replace the model id in the conversation_analyzer.py file with your finetuned model id. Those models have a "ft:" prefix.
 """
 
 import json
@@ -47,6 +47,10 @@ class ConversationAnalyzer:
                     "enum": ["poor", "acceptable", "good"],
                     "description": "How well the bot performed in finding relevant options"
                 },
+                "bot_answered": {
+                    "type": "boolean",
+                    "description": "Whether the bot responded to the user's last message"
+                },
                 "categories": {
                     "type": "array",
                     "items": {
@@ -72,7 +76,7 @@ class ConversationAnalyzer:
                     "description": "Explanation of performance issues in Turkish (null if good)"
                 }
             },
-            "required": ["overall_sentiment", "bot_understanding", "bot_performance", "categories", "to_improve_understanding", "to_improve_performance"],
+            "required": ["overall_sentiment", "bot_understanding", "bot_performance", "bot_answered", "categories", "to_improve_understanding", "to_improve_performance"],
             "additionalProperties": False
         }
         
@@ -95,18 +99,24 @@ Analyze the following customer conversation transcript and return a JSON object 
    - "acceptable": The bot understood the basic request but missed some nuances or details
    - "poor": The bot fundamentally misunderstood the user's intent
 
-3. **bot_performance**: Evaluate how well the bot performed in finding reasonable options (assuming the request was reasonable. For example if the user might have requested a wedding venue in a large area with a reasonable budget, the bot needs to be able to find a venue that matches the user's request. IMPORTANT: Do consider the possibility that the user is making an unreasonable request (e.g. low budget per attendee leading it to not be able to find venues) in those cases, if the bot fails to fulfill a request it may not be a performance issue but this consideration should not affect your judgment for the sentiment section):
+3. **bot_performance**: Evaluate how well the bot performed in finding reasonable options
    - "good": The bot found highly relevant and suitable options
    - "acceptable": The bot found some relevant options but could have done better
    - "poor": The bot failed to find reasonable options or provided irrelevant results
+   Note: Whether or not the bot answered the user's last message is not a performance issue.
+   Important Note: The bot's performance also depends on its ability to find venues or options within reasonable budgets. For example if it fails to find a venue in a cheap city with a budget of 2000 liras per person, that is a performance issue. On the other hand if it fails to find a venue in a expensive city with a very small budget per person, that should not be considered a performance issue.
 
-4. **categories**: Select 1-3 most relevant categories from the predefined list. If no category fits well, use ["Diğer"].
+4. **bot_answered**: Determine if the bot responded to the user's last message:
+   - true: The bot provided a response to the user's final message
+   - false: The user's last message was not answered by the bot (conversation ended with user message)
 
-5. **to_improve_understanding**: Provide a preferably concise 1-2 sentence explanation of understanding issues:
+5. **categories**: Select 1-3 most relevant categories from the predefined list. If no category fits well, use ["Diğer"].
+
+6. **to_improve_understanding**: Provide a preferably concise 1-2 sentence explanation of understanding issues:
    - If bot_understanding is "good": leave this field as null
    - If bot_understanding is "acceptable" or "poor": explain in one line what the bot misunderstood. Give the explanation in Turkish.
 
-6. **to_improve_performance**: Provide a preferably concise 1-2 sentence explanation of performance issues:
+7. **to_improve_performance**: Provide a preferably concise 1-2 sentence explanation of performance issues:
    - If bot_performance is "good": leave this field as null
    - If bot_performance is "acceptable" or "poor": explain in one line how the bot's performance could be improved. Give the explanation in Turkish.
 
@@ -161,7 +171,7 @@ Note: You may observe that the AI asks a few questions in the beginning without 
             
             # Make API call with structured outputs
             response = self.client.chat.completions.create(
-                model="gpt-5",  # Placeholder as requested
+                model="gpt-4.1",  #IMPORTANT: After you fine tune your model, replace this with your finetuned model id. Those models have a "ft:" prefix
                 messages=[
                     {"role": "system", "content": system_message},
                     {"role": "user", "content": user_message}

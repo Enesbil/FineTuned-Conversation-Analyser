@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversation Labeler - Manual Ground Truth</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.2em;
+            font-weight: 300;
+        }
+        
+        .controls {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .file-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .file-input {
+            padding: 8px 16px;
+            border: 2px dashed #6c757d;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-input:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .conversation-counter {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .conversation-container {
+            padding: 30px;
+        }
+        
+        .conversation-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .conversation-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .conversation-id {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        
+        .conversation-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #495057;
+        }
+        
+        .messages {
+            padding: 20px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 80%;
+            line-height: 1.5;
+        }
+        
+        .message.bot {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            margin-right: auto;
+        }
+        
+        .message.user {
+            background: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+            margin-left: auto;
+        }
+        
+        .message-sender {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .message.bot .message-sender {
+            color: #1976d2;
+        }
+        
+        .message.user .message-sender {
+            color: #7b1fa2;
+        }
+        
+        .message-text {
+            word-wrap: break-word;
+        }
+        
+        .labeling-section {
+            background: #f8f9fa;
+            border-top: 2px solid #e9ecef;
+            padding: 25px;
+        }
+        
+        .labeling-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #343a40;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .labeling-title::before {
+            content: "📝";
+            font-size: 20px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+        
+        .form-control {
+            padding: 10px 12px;
+            border: 2px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 2px solid #ced4da;
+            border-radius: 6px;
+            padding: 12px;
+            background: white;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #667eea;
+        }
+        
+        .checkbox-item label {
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .save-status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .save-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .save-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 8px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .no-data h3 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .nav-controls {
+                justify-content: center;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .message {
+                max-width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Conversation Labeler</h1>
+            <p>Manual Ground Truth Creation for LLM Evaluation</p>
+        </div>
+        
+        <div class="controls">
+            <div class="file-input-wrapper">
+                <input type="file" id="fileInput" accept=".json" class="file-input">
+                <label for="fileInput" class="btn btn-primary">📁 Load Conversations</label>
+                <input type="file" id="labelsInput" accept=".json" class="file-input" style="display: none;">
+                <label for="labelsInput" class="btn btn-secondary">📂 Import Labels</label>
+            </div>
+            
+            <div class="nav-controls">
+                <span class="conversation-counter" id="conversationCounter">No conversations loaded</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                </div>
+                <button class="btn btn-secondary" id="prevBtn" disabled>← Previous</button>
+                <button class="btn btn-secondary" id="nextBtn" disabled>Next →</button>
+                <button class="btn btn-success" id="exportBtn" disabled>💾 Export Labels</button>
+            </div>
+        </div>
+        
+        <div class="conversation-container" id="conversationContainer">
+            <div class="no-data">
+                <h3>No conversations loaded</h3>
+                <p>Please select a JSON file containing conversation data to begin labeling.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ConversationLabeler {
+            constructor() {
+                this.conversations = [];
+                this.currentIndex = 0;
+                this.labels = {};
+                
+
+                
+                this.initializeEventListeners();
+            }
+            
+            initializeEventListeners() {
+                document.getElementById('fileInput').addEventListener('change', (e) => this.handleFileLoad(e));
+                document.getElementById('labelsInput').addEventListener('change', (e) => this.handleLabelsImport(e));
+                document.getElementById('prevBtn').addEventListener('click', () => this.navigateConversation(-1));
+                document.getElementById('nextBtn').addEventListener('click', () => this.navigateConversation(1));
+                document.getElementById('exportBtn').addEventListener('click', () => this.exportLabels());
+                
+                // Keyboard navigation
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        this.navigateConversation(-1);
+                    } else if (e.ctrlKey && e.key === 'ArrowRight') {
+                        e.preventDefault();
+                        this.navigateConversation(1);
+                    } else if (e.ctrlKey && e.key === 's') {
+                        e.preventDefault();
+                        this.saveCurrentLabels();
+                    }
+                });
+            }
+            
+            async handleFileLoad(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                try {
+                    const text = await file.text();
+                    this.conversations = JSON.parse(text);
+                    this.currentIndex = 0;
+                    this.labels = {};
+                    
+                    this.updateUI();
+                    this.renderCurrentConversation();
+                    
+                    console.log(`Loaded ${this.conversations.length} conversations`);
+                } catch (error) {
+                    alert('Error loading file: ' + error.message);
+                }
+            }
+            
+            async handleLabelsImport(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                try {
+                    const text = await file.text();
+                    const importedData = JSON.parse(text);
+                    
+                    // Handle different import formats
+                    let labelsToImport = {};
+                    
+                    if (importedData.labels && Array.isArray(importedData.labels)) {
+                        // Handle exported format: { labels: [{ conversation_id: "...", ground_truth: {...} }] }
+                        for (const item of importedData.labels) {
+                            if (item.conversation_id && item.ground_truth) {
+                                labelsToImport[item.conversation_id] = item.ground_truth;
+                            }
+                        }
+                    } else if (typeof importedData === 'object' && importedData !== null) {
+                        // Handle direct labels format: { "conv_id": { "overall_sentiment": "...", ... } }
+                        labelsToImport = importedData;
+                    }
+                    
+                    // Merge with existing labels
+                    this.labels = { ...this.labels, ...labelsToImport };
+                    
+                    // Update UI and re-render current conversation
+                    this.updateUI();
+                    this.renderCurrentConversation();
+                    
+                    const importedCount = Object.keys(labelsToImport).length;
+                    this.showImportStatus(`Successfully imported ${importedCount} labels!`, 'success');
+                    
+                    console.log(`Imported ${importedCount} labels`);
+                } catch (error) {
+                    this.showImportStatus('Error importing labels: ' + error.message, 'error');
+                }
+                
+                // Clear the input
+                event.target.value = '';
+            }
+            
+            navigateConversation(direction) {
+                this.saveCurrentLabels();
+                
+                const newIndex = this.currentIndex + direction;
+                if (newIndex >= 0 && newIndex < this.conversations.length) {
+                    this.currentIndex = newIndex;
+                    this.renderCurrentConversation();
+                    this.updateUI();
+                }
+            }
+            
+            updateUI() {
+                const hasConversations = this.conversations.length > 0;
+                const counter = document.getElementById('conversationCounter');
+                const prevBtn = document.getElementById('prevBtn');
+                const nextBtn = document.getElementById('nextBtn');
+                const exportBtn = document.getElementById('exportBtn');
+                const progressBar = document.getElementById('progressBar');
+                
+                if (hasConversations) {
+                    const labeledCount = Object.keys(this.labels).length;
+                counter.textContent = `${this.currentIndex + 1} / ${this.conversations.length} (${labeledCount} labeled)`;
+                    prevBtn.disabled = this.currentIndex === 0;
+                    nextBtn.disabled = this.currentIndex === this.conversations.length - 1;
+                    exportBtn.disabled = false;
+                    
+                    const progress = ((this.currentIndex + 1) / this.conversations.length) * 100;
+                    progressBar.style.width = `${progress}%`;
+                } else {
+                    counter.textContent = 'No conversations loaded';
+                    prevBtn.disabled = true;
+                    nextBtn.disabled = true;
+                    exportBtn.disabled = true;
+                    progressBar.style.width = '0%';
+                }
+            }
+            
+            renderCurrentConversation() {
+                const container = document.getElementById('conversationContainer');
+                
+                if (this.conversations.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-data">
+                            <h3>No conversations loaded</h3>
+                            <p>Please select a JSON file containing conversation data to begin labeling.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const conversation = this.conversations[this.currentIndex];
+                const conversationId = conversation.metadata.conversation_id;
+                const existingLabels = this.labels[conversationId] || {};
+                
+                // Render messages
+                const messagesHtml = conversation.transcript_list_of_messages.map(msg => `
+                    <div class="message ${msg.sender.toLowerCase()}">
+                        <div class="message-sender">${msg.sender}</div>
+                        <div class="message-text">${this.escapeHtml(msg.text)}</div>
+                    </div>
+                `).join('');
+                
+                // Categories removed - not needed for evaluation
+                
+                container.innerHTML = `
+                    <div class="conversation-card">
+                        <div class="conversation-header">
+                            <div class="conversation-id">
+                                ID: ${conversationId} 
+                                ${this.labels[conversationId] ? '<span style="color: #28a745; font-weight: bold;">✓ LABELED</span>' : '<span style="color: #6c757d;">○ Unlabeled</span>'}
+                            </div>
+                            <div class="conversation-meta">
+                                <span>📅 ${conversation.metadata.start_time_utc}</span>
+                                <span>💬 ${conversation.metadata.total_messages} messages</span>
+                            </div>
+                        </div>
+                        
+                        <div class="messages">
+                            ${messagesHtml}
+                        </div>
+                        
+                        <div class="labeling-section">
+                            <div class="labeling-title">Manual Analysis Labels</div>
+                            
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Overall Sentiment</label>
+                                    <select class="form-control" id="overallSentiment">
+                                        <option value="">-- Select --</option>
+                                        <option value="positive" ${existingLabels.overall_sentiment === 'positive' ? 'selected' : ''}>Positive</option>
+                                        <option value="neutral" ${existingLabels.overall_sentiment === 'neutral' ? 'selected' : ''}>Neutral</option>
+                                        <option value="negative" ${existingLabels.overall_sentiment === 'negative' ? 'selected' : ''}>Negative</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Bot Understanding</label>
+                                    <select class="form-control" id="botUnderstanding">
+                                        <option value="">-- Select --</option>
+                                        <option value="good" ${existingLabels.bot_understanding === 'good' ? 'selected' : ''}>Good</option>
+                                        <option value="acceptable" ${existingLabels.bot_understanding === 'acceptable' ? 'selected' : ''}>Acceptable</option>
+                                        <option value="poor" ${existingLabels.bot_understanding === 'poor' ? 'selected' : ''}>Poor</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Bot Performance</label>
+                                    <select class="form-control" id="botPerformance">
+                                        <option value="">-- Select --</option>
+                                        <option value="good" ${existingLabels.bot_performance === 'good' ? 'selected' : ''}>Good</option>
+                                        <option value="acceptable" ${existingLabels.bot_performance === 'acceptable' ? 'selected' : ''}>Acceptable</option>
+                                        <option value="poor" ${existingLabels.bot_performance === 'poor' ? 'selected' : ''}>Poor</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Bot Answered</label>
+                                    <select class="form-control" id="botAnswered">
+                                        <option value="">-- Select --</option>
+                                        <option value="true" ${existingLabels.bot_answered === true ? 'selected' : ''}>Yes - Bot responded</option>
+                                        <option value="false" ${existingLabels.bot_answered === false ? 'selected' : ''}>No - User's last message unanswered</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="save-status" id="saveStatus"></div>
+                        </div>
+                    </div>
+                `;
+                
+                // Add auto-save functionality
+                this.addAutoSave();
+            }
+            
+            addAutoSave() {
+                const inputs = document.querySelectorAll('#overallSentiment, #botUnderstanding, #botPerformance, #botAnswered');
+                inputs.forEach(input => {
+                    input.addEventListener('change', () => {
+                        this.saveCurrentLabels(true);
+                    });
+                });
+            }
+            
+            saveCurrentLabels(silent = false) {
+                if (this.conversations.length === 0) return;
+                
+                const conversationId = this.conversations[this.currentIndex].metadata.conversation_id;
+                
+                const botAnsweredValue = document.getElementById('botAnswered').value;
+                const labels = {
+                    overall_sentiment: document.getElementById('overallSentiment').value || null,
+                    bot_understanding: document.getElementById('botUnderstanding').value || null,
+                    bot_performance: document.getElementById('botPerformance').value || null,
+                    bot_answered: botAnsweredValue ? (botAnsweredValue === 'true') : null
+                };
+                
+                // Only save if at least one field is filled out
+                const hasAnyLabel = labels.overall_sentiment || labels.bot_understanding || labels.bot_performance || (labels.bot_answered !== null);
+                
+                if (hasAnyLabel) {
+                    this.labels[conversationId] = labels;
+                    if (!silent) {
+                        this.showSaveStatus('Labels saved successfully!', 'success');
+                    }
+                } else {
+                    // Remove from labels if all fields are empty (user cleared the conversation)
+                    delete this.labels[conversationId];
+                    if (!silent) {
+                        this.showSaveStatus('Empty labels cleared', 'success');
+                    }
+                }
+            }
+            
+            showSaveStatus(message, type) {
+                const statusEl = document.getElementById('saveStatus');
+                statusEl.textContent = message;
+                statusEl.className = `save-status ${type}`;
+                statusEl.style.display = 'block';
+                
+                setTimeout(() => {
+                    statusEl.style.display = 'none';
+                }, 3000);
+            }
+            
+            showImportStatus(message, type) {
+                // Create a temporary status element for import notifications
+                const tempStatus = document.createElement('div');
+                tempStatus.className = `save-status ${type}`;
+                tempStatus.textContent = message;
+                tempStatus.style.position = 'fixed';
+                tempStatus.style.top = '20px';
+                tempStatus.style.right = '20px';
+                tempStatus.style.zIndex = '1000';
+                tempStatus.style.display = 'block';
+                tempStatus.style.minWidth = '300px';
+                tempStatus.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+                
+                document.body.appendChild(tempStatus);
+                
+                setTimeout(() => {
+                    document.body.removeChild(tempStatus);
+                }, 4000);
+            }
+            
+            exportLabels() {
+                this.saveCurrentLabels();
+                
+                const labeledConversations = [];
+                for (const [conversationId, labels] of Object.entries(this.labels)) {
+                    if (labels.overall_sentiment || labels.bot_understanding || labels.bot_performance || (labels.bot_answered !== null)) {
+                        labeledConversations.push({
+                            conversation_id: conversationId,
+                            ground_truth: labels
+                        });
+                    }
+                }
+                
+                const exportData = {
+                    exported_at: new Date().toISOString(),
+                    total_labeled: labeledConversations.length,
+                    labels: labeledConversations
+                };
+                
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `conversation_labels_${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                this.showSaveStatus(`Exported ${labeledConversations.length} labeled conversations!`, 'success');
+            }
+            
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+        
+        // Initialize the application
+        new ConversationLabeler();
+    </script>
+</body>
+</html>
