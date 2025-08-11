@@ -1,1 +1,82 @@
-{"notice": "you should have a json containing the conversations you want to analyze like this"}
+[
+  {
+    "conversation_id": "example_conv_001",
+    "messages": [
+      {
+        "id": "msg_001",
+        "type": "TEXT",
+        "sender_id": "bf17272dc3f0",
+        "content": {
+          "text": "Merhaba! Size nasıl yardımcı olabilirim? Düğün organizasyonu konusunda herhangi bir sorunuz var mı?"
+        },
+        "created_at": "2024-01-15T10:00:00Z",
+        "is_internal": false
+      },
+      {
+        "id": "msg_002", 
+        "type": "TEXT",
+        "sender_id": "user123",
+        "content": {
+          "text": "Merhaba, İstanbul'da 150 kişilik bir düğün için mekan arıyorum. Bütçem kişi başı 1000 TL civarında."
+        },
+        "created_at": "2024-01-15T10:01:00Z",
+        "is_internal": false
+      },
+      {
+        "id": "msg_003",
+        "type": "TEXT", 
+        "sender_id": "bf17272dc3f0",
+        "content": {
+          "text": "Tabii ki yardımcı olabilirim! İstanbul'da 150 kişi için kişi başı 1000 TL bütçe ile harika seçenekler var. Size birkaç öneri sunabilir miyim? Hangi ilçeyi tercih ediyorsunuz?"
+        },
+        "created_at": "2024-01-15T10:01:30Z",
+        "is_internal": false
+      },
+      {
+        "id": "msg_004",
+        "type": "TEXT",
+        "sender_id": "user123", 
+        "content": {
+          "text": "Avrupa yakası olursa daha iyi olur. Özellikle Beşiktaş, Şişli ya da Sarıyer tarafları."
+        },
+        "created_at": "2024-01-15T10:02:00Z",
+        "is_internal": false
+      },
+      {
+        "id": "msg_005",
+        "type": "TEXT",
+        "sender_id": "bf17272dc3f0",
+        "content": {
+          "text": "Mükemmel! Avrupa yakası için size şu önerileri sunabilirim:\n\n1. **Grand Pera Hotel** - Şişli bölgesinde, kişi başı 950 TL\n2. **Borusan Otomotiv Müze** - Beşiktaş'ta, kişi başı 1050 TL  \n3. **Shangri-La Bosphorus** - Beşiktaş, kişi başı 1100 TL\n\nHangisi ilginizi çekiyor? Detaylı bilgi verebilirim."
+        },
+        "created_at": "2024-01-15T10:03:00Z",
+        "is_internal": false
+      }
+    ]
+  },
+  {
+    "conversation_id": "example_conv_002", 
+    "messages": [
+      {
+        "id": "msg_101",
+        "type": "TEXT",
+        "sender_id": "bf17272dc3f0",
+        "content": {
+          "text": "Merhaba! Düğün organizasyonunuz için size nasıl yardımcı olabilirim?"
+        },
+        "created_at": "2024-01-15T14:00:00Z",
+        "is_internal": false
+      },
+      {
+        "id": "msg_102",
+        "type": "TEXT", 
+        "sender_id": "user456",
+        "content": {
+          "text": "Selam, gelinlik modelleri hakkında bilgi almak istiyorum."
+        },
+        "created_at": "2024-01-15T14:00:30Z",
+        "is_internal": false
+      }
+    ]
+  }
+]
