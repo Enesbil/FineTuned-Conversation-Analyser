@@ -1,6 +1,6 @@
 # Fine-Tuned Sentiment Analyzer
 
-A comprehensive conversation analysis tool designed for marriage/wedding organizations to analyze customer interactions using OpenAI's GPT models. This project enables both automated analysis and manual labeling of conversations to evaluate bot performance and customer sentiment.
+A comprehensive conversation analysis tool designed for marriage/wedding organizations to analyze customer interactions using OpenAI's GPT models. This project enables both automated analysis and manual labeling of conversations to evaluate bot performance and customer sentiment. I have developed a more advanced version of this project for a client which is private. This version is a more rudimentary version that, with the explicit permission of the client, I have open-sourced (sensitive data omitted).
 
 ## Features
 
